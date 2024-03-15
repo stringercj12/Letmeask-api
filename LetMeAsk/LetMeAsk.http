@@ -1,0 +1,6 @@
+@LetMeAsk_HostAddress = http://localhost:5206
+
+GET {{LetMeAsk_HostAddress}}/swagger/
+Accept: application/json
+
+###
