@@ -1,4 +1,4 @@
-﻿namespace Letmeask.Model
+﻿namespace Letmeask.Entities
 {
     public class Replica
     {

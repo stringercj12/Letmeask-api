@@ -1,6 +1,8 @@
-﻿using Letmeask.Model;
+﻿using Letmeask.Entities;
+using Letmeask.Models;
 using Letmeask.Repository;
 using Letmeask.Repository.Interface;
+using Letmeask.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,32 +24,67 @@ namespace Letmeask.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
-        public IEnumerable<User> Get()
+        public async Task<IActionResult> Get()
         {
-            return this._userRepository.GetAll();
+            var users = await _userRepository.GetAll();
+
+
+            if (users != null)
+            {
+                return Ok(users);
+            }
+
+
+            return NotFound("Não encontrado");
         }
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
-        public User Get(Guid id)
+        public async Task<IActionResult> Get(Guid id)
         {
-            return this._userRepository.GetById(id);
+            var user = await _userRepository.GetById(id);
+
+            if (user != null)
+            {
+                return Ok(user);
+            }
+
+
+            return NotFound("Não encontrado");
         }
 
         // GET api/<UserController>/teste@teste.com
         [HttpGet("{email}")]
-        public User GetByEmail(string email)
+        public async Task<IActionResult> GetByEmail(string email)
         {
-            return this._userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByEmail(email);
+
+            if (user == null)
+            {
+                return NotFound("Não encontrado");
+            }
+
+
+            return Ok(UserViewModel.Mapear(user));
         }
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] User user)
+        public void Post(UserModel user)
         {
+
+            var userExist = await GetByEmail(user.Email);
+
+            if (userExist != null)
+            {
+                throw new Exception("Já existe um usuário com esse email tente novamente usando outro");
+            }
+
+
+
             try
             {
-                this._userRepository.UserCreate(user);
+                _userRepository.UserCreate(user);
             }
             catch (Exception)
             {
@@ -73,7 +110,15 @@ namespace Letmeask.Controllers
         [HttpDelete("{id}")]
         public void Delete(Guid id)
         {
-            this._userRepository.UserDelete(id);
+            var user = _userRepository.GetById(id);
+
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChangesAsync();
+            }
+
+           _userRepository.UserDelete(id);
         }
     }
 }

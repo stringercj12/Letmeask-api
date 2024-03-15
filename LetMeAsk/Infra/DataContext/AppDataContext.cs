@@ -1,4 +1,4 @@
-﻿using Letmeask.Model;
+﻿using Letmeask.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 
